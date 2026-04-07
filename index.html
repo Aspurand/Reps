@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="REPS"/>
+<meta name="theme-color" content="#0F0F13"/>
+<meta name="description" content="REPS — Your personal fitness companion"/>
+<title>REPS</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0F0F13;
+  --surface: #1A1A22;
+  --surface2: #24242F;
+  --surface3: #2E2E3A;
+  --text: #F0EFF4;
+  --text2: #9896A8;
+  --text3: #6B6980;
+  --accent: #7C5CFC;
+  --accent2: #A78BFA;
+  --accent-glow: rgba(124, 92, 252, 0.2);
+  --green: #34D399;
+  --green-glow: rgba(52, 211, 153, 0.15);
+  --orange: #FB923C;
+  --orange-glow: rgba(251, 146, 60, 0.15);
+  --red: #F87171;
+  --pink: #F472B6;
+  --blue: #60A5FA;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --font: 'Outfit', sans-serif;
+}
+[data-theme="light"] {
+  --bg: #F5F3FA; --surface: #FFFFFF; --surface2: #EDE9F5; --surface3: #DDD8EA;
+  --text: #1A1A22; --text2: #6B6980; --text3: #9896A8;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body,html{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+#app{max-width:430px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;position:relative;overflow-x:hidden}
+.page{flex:1;padding:20px 16px 100px;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes checkmark{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.card{background:var(--surface);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--surface2);transition:transform .2s}
+.card:active{transform:scale(.985)}
+.btn{font-family:var(--font);font-weight:600;border:none;border-radius:var(--radius-sm);padding:14px 24px;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#9B7BFC);color:#fff;box-shadow:0 4px 20px var(--accent-glow)}
+.btn-secondary{background:var(--surface2);color:var(--text)}
+.btn-ghost{background:transparent;color:var(--text2);padding:8px 12px}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:var(--radius-xs)}
+.btn-full{width:100%}
+.btn-green{background:linear-gradient(135deg,var(--green),#2DD4BF);color:#064E3B;box-shadow:0 4px 20px var(--green-glow)}
+.btn-orange{background:linear-gradient(135deg,var(--orange),#F59E0B);color:#78350F}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .2s;border:1.5px solid transparent;font-family:var(--font)}
+.chip.active{background:var(--accent-glow);color:var(--accent);border-color:var(--accent)}
+.input{width:100%;font-family:var(--font);padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--surface3);background:var(--surface2);color:var(--text);font-size:14px;outline:none;transition:border-color .2s}
+.input:focus{border-color:var(--accent)}
+.input-sm{padding:8px 10px;font-size:13px}
+.label{font-size:12px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--surface2);display:flex;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;border:none;background:none;color:var(--text3);font-size:10px;font-family:var(--font);font-weight:500;cursor:pointer;transition:color .2s;-webkit-tap-highlight-color:transparent}
+.nav-item.active{color:var(--accent)}
+.exercise-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--surface2)}
+.exercise-row:last-child{border-bottom:none}
+.check-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--surface3);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .3s}
+.check-circle.done{background:var(--green);border-color:var(--green);animation:checkmark .4s ease}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
+.modal{width:100%;max-width:430px;background:var(--surface);border-radius:20px 20px 0 0;padding:24px 20px max(24px,env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto;animation:slideUp .3s ease}
+.modal-handle{width:36px;height:4px;background:var(--surface3);border-radius:2px;margin:0 auto 16px}
+.streak-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#FB923C,#F59E0B);color:#78350F;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.timer-display{font-size:72px;font-weight:700;letter-spacing:-2px;text-align:center;font-variant-numeric:tabular-nums;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.progress-bar{height:6px;border-radius:3px;background:var(--surface2);overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3)}
+.cal-cell.done{background:var(--green);color:#fff;font-weight:600}
+.cal-cell.today{border:1.5px solid var(--accent)}
+.cal-cell.rest{background:var(--surface2)}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.photo-cell{aspect-ratio:3/4;border-radius:var(--radius-sm);background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;transition:transform .2s}
+.photo-cell:active{transform:scale(.95)}
+.photo-cell img{width:100%;height:100%;object-fit:cover}
+h1{font-size:28px;font-weight:800;letter-spacing:-.5px}
+h2{font-size:22px;font-weight:700;letter-spacing:-.3px}
+h3{font-size:17px;font-weight:600}
+.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}
+.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
+.mt-2{margin-top:8px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}
+.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}.mb-4{margin-bottom:16px}
+.w-full{width:100%}.text-center{text-align:center}
+.text-sm{font-size:13px}.text-xs{font-size:11px}.text-muted{color:var(--text2)}.text-accent{color:var(--accent)}
+.font-bold{font-weight:700}.font-medium{font-weight:500}
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.quick-action{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--surface2);cursor:pointer;font-size:10px;color:var(--text2);font-weight:500;transition:all .2s;font-family:var(--font)}
+.quick-action:active{transform:scale(.94);background:var(--surface2)}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:4px;border:1px solid var(--surface2)}
+.stat-value{font-size:24px;font-weight:800}
+.stat-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.tab-bar{display:flex;gap:4px;background:var(--surface2);border-radius:var(--radius-sm);padding:3px}
+.tab{flex:1;padding:8px;border:none;background:transparent;color:var(--text3);font-family:var(--font);font-size:13px;font-weight:500;border-radius:7px;cursor:pointer;transition:all .2s}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.rest-timer-bar{position:fixed;bottom:68px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:400px;background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;z-index:99;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:slideUp .3s ease}
+.confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:300}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel" data-type="module">
+const { useState, useEffect, useRef } = React;
+
+// ─── Storage ───
+const S = {
+  get: (k, d) => { try { const v = localStorage.getItem("reps_" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set: (k, v) => { try { localStorage.setItem("reps_" + k, JSON.stringify(v)); } catch {} },
+};
+
+// ─── IndexedDB for photos (survives localStorage limits) ───
+const PhotoDB = {
+  _db: null,
+  open() {
+    return new Promise((resolve, reject) => {
+      if (this._db) return resolve(this._db);
+      const req = indexedDB.open("reps_photos", 1);
+      req.onupgradeneeded = e => { e.target.result.createObjectStore("photos", { keyPath: "id" }); };
+      req.onsuccess = e => { this._db = e.target.result; resolve(this._db); };
+      req.onerror = () => reject(req.error);
+    });
+  },
+  async getAll() {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("photos", "readonly");
+      const req = tx.objectStore("photos").getAll();
+      req.onsuccess = () => resolve(req.result.sort((a, b) => b.date.localeCompare(a.date)));
+      req.onerror = () => reject(req.error);
+    });
+  },
+  async add(photo) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("photos", "readwrite");
+      tx.objectStore("photos").put(photo);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  },
+  async remove(id) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("photos", "readwrite");
+      tx.objectStore("photos").delete(id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  },
+  async clear() {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction("photos", "readwrite");
+      tx.objectStore("photos").clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+};
+
+// ─── Defaults ───
+const DEFAULT_WORKOUTS = [
+  { id: "upper-a", name: "Upper A", day: "Monday", exercises: [
+    { id: "e1", name: "Push-ups", sets: 3, reps: 15, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e2", name: "Pike Push-ups", sets: 3, reps: 10, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e3", name: "Chair Dips", sets: 3, reps: 12, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e4", name: "Incline Push-ups", sets: 3, reps: 15, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e5", name: "Plank", sets: 3, reps: 45, weight: "BW", done: false, notes: "", type: "timed" },
+  ]},
+  { id: "lower-a", name: "Lower A", day: "Tuesday", exercises: [
+    { id: "e6", name: "Bodyweight Squats", sets: 3, reps: 20, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e7", name: "Bulgarian Split Squats", sets: 3, reps: 12, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e8", name: "Walking Lunges", sets: 3, reps: 16, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e9", name: "Wall Sit", sets: 3, reps: 30, weight: "BW", done: false, notes: "", type: "timed" },
+    { id: "e10", name: "Calf Raises", sets: 3, reps: 20, weight: "BW", done: false, notes: "", type: "reps" },
+  ]},
+  { id: "upper-b", name: "Upper B", day: "Thursday", exercises: [
+    { id: "e11", name: "Pull-ups", sets: 3, reps: 8, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e12", name: "Inverted Rows", sets: 3, reps: 12, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e13", name: "Backpack Curls", sets: 3, reps: 15, weight: "10 lb", done: false, notes: "", type: "reps" },
+    { id: "e14", name: "Band Face Pulls", sets: 3, reps: 15, weight: "Band", done: false, notes: "", type: "reps" },
+    { id: "e15", name: "Hanging Knee Raises", sets: 3, reps: 12, weight: "BW", done: false, notes: "", type: "reps" },
+  ]},
+  { id: "lower-b", name: "Lower B", day: "Friday", exercises: [
+    { id: "e16", name: "Hip Thrusts", sets: 3, reps: 15, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e17", name: "Romanian DL (Backpack)", sets: 3, reps: 12, weight: "15 lb", done: false, notes: "", type: "reps" },
+    { id: "e18", name: "Step-ups", sets: 3, reps: 12, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e19", name: "Single-leg Glute Bridge", sets: 3, reps: 12, weight: "BW", done: false, notes: "", type: "reps" },
+    { id: "e20", name: "Calf Raises", sets: 3, reps: 25, weight: "BW", done: false, notes: "", type: "reps" },
+  ]},
+];
+
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const SCHEDULE = { Monday: "upper-a", Tuesday: "lower-a", Thursday: "upper-b", Friday: "lower-b" };
+const GOALS = ["Build Muscle", "Lose Weight", "Improve Fitness", "Stay Consistent"];
+const SETTINGS_OPTIONS = ["Home", "Gym", "Mixed"];
+const CARDIO_TYPES = ["Running", "Walking", "Cycling", "Jump Rope", "Jogging"];
+
+const uid = () => Math.random().toString(36).slice(2, 9);
+// FIX: Use local date, not UTC
+const todayStr = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+};
+const dayName = () => DAYS[new Date().getDay()];
+
+// ─── Icons ───
+const Icon = ({ name, size = 20, color = "currentColor" }) => {
+  const paths = {
+    home: '<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/>',
+    dumbbell: '<path d="M6.5 6.5h11M4 9V5h2.5v12H4v-4M20 9V5h-2.5v12H20v-4"/><rect x="2" y="8" width="2" height="6" rx="0.5"/><rect x="20" y="8" width="2" height="6" rx="0.5"/>',
+    chart: '<path d="M3 3v18h18M7 16l4-4 4 4 5-6"/>',
+    camera: '<path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/>',
+    stats: '<path d="M18 20V10M12 20V4M6 20v-6"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>',
+    check: '<path d="M20 6L9 17l-5-5"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    play: '<polygon points="5 3 19 12 5 21 5 3"/>',
+    pause: '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>',
+    flame: '<path d="M12 22c-4.97 0-8-3.58-8-8 0-3.76 2.85-6.44 4.5-8 .28-.27.72-.08.72.3 0 1.69 1.2 3.2 2.5 3.2.71 0 1.28-.58 1.28-1.3 0-.64-.23-1.24-.6-1.7-.18-.23-.02-.56.27-.5C16.03 7 20 10.58 20 14c0 4.42-3.03 8-8 8z"/>',
+    x: '<path d="M18 6L6 18M6 6l12 12"/>',
+    timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4M21 7l-2-2"/>',
+    edit: '<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+    trash: '<path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>',
+    moon: '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>',
+    sun: '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+    run: '<path d="M13 4a2 2 0 100-4 2 2 0 000 4zm-1.8 7.1l2.3-2.3 2.4 2.4.8 3.6-2 .4-.6-3-1.5-1.5-2.8 2.8v4.5H8v-5.5l3.2-3.2L9.7 15H6l1.5-4.3 2-2.3c.6-.6 1.5-.6 2 0z"/>',
+    zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+    heart: '<path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>',
+    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  };
+  return React.createElement("svg", {
+    width: size, height: size, viewBox: "0 0 24 24", fill: "none",
+    stroke: color, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round",
+    dangerouslySetInnerHTML: { __html: paths[name] || "" }
+  });
+};
+
+// ─── Progress Ring ───
+const Ring = ({ pct, size = 60, stroke = 5, color = "var(--accent)" }) => {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const offset = c - (Math.min(pct, 100) / 100) * c;
+  return React.createElement("svg", { width: size, height: size, style: { transform: "rotate(-90deg)" } },
+    React.createElement("circle", { cx: size/2, cy: size/2, r, fill: "none", stroke: "var(--surface2)", strokeWidth: stroke }),
+    React.createElement("circle", { cx: size/2, cy: size/2, r, fill: "none", stroke: color, strokeWidth: stroke,
+      strokeDasharray: c, strokeDashoffset: offset, strokeLinecap: "round",
+      style: { transition: "stroke-dashoffset 0.8s ease" } })
+  );
+};
+
+// ─── Main App ───
+function App() {
+  const [onboarded, setOnboarded] = useState(S.get("onboarded", false));
+  const [profile, setProfile] = useState(S.get("profile", { name: "", goal: "", setting: "Home", daysPerWeek: 4 }));
+  const [workouts, setWorkouts] = useState(S.get("workouts", DEFAULT_WORKOUTS));
+  const [history, setHistory] = useState(S.get("history", []));
+  const [bodyStats, setBodyStats] = useState(S.get("bodyStats", []));
+  const [cardioLogs, setCardioLogs] = useState(S.get("cardioLogs", []));
+  const [page, setPage] = useState("home");
+  const [darkMode, setDarkMode] = useState(S.get("darkMode", true));
+  const [modal, setModal] = useState(null);
+  const [activeWorkout, setActiveWorkout] = useState(null);
+
+  useEffect(() => { S.set("onboarded", onboarded); }, [onboarded]);
+  useEffect(() => { S.set("profile", profile); }, [profile]);
+  useEffect(() => { S.set("workouts", workouts); }, [workouts]);
+  useEffect(() => { S.set("history", history); }, [history]);
+  useEffect(() => { S.set("bodyStats", bodyStats); }, [bodyStats]);
+  useEffect(() => { S.set("cardioLogs", cardioLogs); }, [cardioLogs]);
+  useEffect(() => { S.set("darkMode", darkMode); }, [darkMode]);
+  useEffect(() => { document.querySelector("#app").setAttribute("data-theme", darkMode ? "dark" : "light"); }, [darkMode]);
+
+  const getTodayWorkout = () => { const id = SCHEDULE[dayName()]; return id ? workouts.find(w => w.id === id) : null; };
+  const getTodayLabel = () => { const w = getTodayWorkout(); if (w) return w.name; const d = dayName(); return (d === "Wednesday" || d === "Saturday") ? "Cardio Day" : "Rest Day"; };
+
+  const getWeeklyCompleted = () => {
+    const now = new Date(); const s = new Date(now); s.setDate(now.getDate() - now.getDay()); s.setHours(0,0,0,0);
+    return history.filter(h => new Date(h.date + "T00:00:00") >= s).length;
+  };
+
+  const getStreak = () => {
+    if (!history.length) return 0;
+    const dates = new Set(history.map(h => h.date));
+    let streak = 0; const d = new Date();
+    for (let i = 0; i < 90; i++) {
+      const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      const dn = DAYS[d.getDay()];
+      if (SCHEDULE[dn]) {
+        if (dates.has(ds)) streak++;
+        else if (streak > 0) break; // FIX: only break if we already had a streak going
+      }
+      d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  };
+
+  const getCaloriesThisWeek = () => {
+    const now = new Date(); const s = new Date(now); s.setDate(now.getDate() - now.getDay()); s.setHours(0,0,0,0);
+    const wCals = history.filter(h => new Date(h.date + "T00:00:00") >= s).length * 220;
+    const cCals = cardioLogs.filter(c => new Date(c.date + "T00:00:00") >= s).reduce((a, c) => a + (c.calories || 0), 0);
+    return wCals + cCals;
+  };
+
+  const completeWorkout = (workout) => {
+    const entry = { date: todayStr(), workoutId: workout.id, workoutName: workout.name, exercises: workout.exercises.map(e => ({...e})) };
+    setHistory(prev => [...prev, entry]);
+    setActiveWorkout(null);
+  };
+
+  const toggleExercise = (wIdx, eIdx) => {
+    if (activeWorkout) {
+      setActiveWorkout(prev => ({...prev, exercises: prev.exercises.map((e, i) => i === eIdx ? {...e, done: !e.done} : e)}));
+    }
+  };
+
+  const startWorkout = (workout) => {
+    setActiveWorkout({...workout, exercises: workout.exercises.map(e => ({...e, done: false}))});
+    setPage("active-workout");
+  };
+
+  const handleReset = async () => {
+    setOnboarded(false); setHistory([]); setBodyStats([]); setCardioLogs([]);
+    setWorkouts(DEFAULT_WORKOUTS); setPage("home");
+    try { await PhotoDB.clear(); } catch {}
+  };
+
+  if (!onboarded) return React.createElement(Onboarding, { profile, setProfile, onComplete: () => setOnboarded(true) });
+
+  return React.createElement("div", null,
+    page === "home" && React.createElement(HomePage, { profile, todayLabel: getTodayLabel(), todayWorkout: getTodayWorkout(), weeklyCompleted: getWeeklyCompleted(), streak: getStreak(), calories: getCaloriesThisWeek(), bodyStats, startWorkout, setModal, setPage }),
+    page === "workouts" && React.createElement(WorkoutsPage, { workouts, setWorkouts, startWorkout, setModal }),
+    page === "active-workout" && activeWorkout && React.createElement(ActiveWorkoutPage, { workout: activeWorkout, toggleExercise, completeWorkout, setPage, setModal, setActiveWorkout }),
+    page === "progress" && React.createElement(ProgressPage, { history, cardioLogs, bodyStats }),
+    page === "photos" && React.createElement(PhotosPage, null),
+    page === "stats" && React.createElement(StatsPage, { bodyStats, setBodyStats, cardioLogs, setCardioLogs, setModal }),
+    page === "settings" && React.createElement(SettingsPage, { profile, setProfile, darkMode, setDarkMode, onReset: handleReset }),
+    modal && React.createElement("div", { className: "modal-overlay", onClick: () => setModal(null) },
+      React.createElement("div", { className: "modal", onClick: e => e.stopPropagation() },
+        React.createElement("div", { className: "modal-handle" }), modal)),
+    page !== "active-workout" && React.createElement("nav", { className: "nav" },
+      [["home","Home","home"],["dumbbell","Workouts","workouts"],["chart","Progress","progress"],["camera","Photos","photos"],["stats","Stats","stats"],["settings","Settings","settings"]].map(([icon, label, pg]) =>
+        React.createElement("button", { key: pg, className: `nav-item ${page === pg ? "active" : ""}`, onClick: () => setPage(pg) },
+          React.createElement(Icon, { name: icon, size: 20, color: page === pg ? "var(--accent)" : "var(--text3)" }), label)))
+  );
+}
+
+// ─── Onboarding ───
+function Onboarding({ profile, setProfile, onComplete }) {
+  const [step, setStep] = useState(0);
+  const [name, setName] = useState(profile.name);
+  const [goal, setGoal] = useState(profile.goal);
+  const [setting, setSetting] = useState(profile.setting);
+  const [days, setDays] = useState(profile.daysPerWeek);
+
+  const finish = () => { setProfile({ name, goal, setting, daysPerWeek: days }); onComplete(); };
+
+  if (step === 0) return React.createElement("div", { className: "page flex flex-col", style: { justifyContent: "center", minHeight: "100dvh", padding: "32px 24px" } },
+    React.createElement("div", { style: { animation: "fadeUp .4s ease" } },
+      React.createElement("div", { style: { fontSize: 48, marginBottom: 8 } }, "\uD83D\uDCAA"),
+      React.createElement("h1", { style: { fontSize: 36, marginBottom: 8, background: "linear-gradient(135deg, var(--accent), var(--accent2))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" } }, "REPS"),
+      React.createElement("p", { className: "text-muted", style: { fontSize: 16, lineHeight: 1.5, marginBottom: 32 } }, "Your personal fitness companion. Simple, focused, built for consistency."),
+      React.createElement("button", { className: "btn btn-primary btn-full", style: { padding: 16, fontSize: 16 }, onClick: () => setStep(1) }, "Get Started")));
+
+  if (step === 1) return React.createElement("div", { className: "page flex flex-col", style: { justifyContent: "center", minHeight: "100dvh", padding: "32px 24px" } },
+    React.createElement("div", { style: { animation: "fadeUp .4s ease" } },
+      React.createElement("p", { className: "label mb-2" }, "Step 1 of 4"),
+      React.createElement("h2", { className: "mb-4" }, "What's your name?"),
+      React.createElement("input", { className: "input", placeholder: "Your name", value: name, onChange: e => setName(e.target.value), autoFocus: true, style: { fontSize: 18, padding: 16 } }),
+      React.createElement("button", { className: "btn btn-primary btn-full mt-4", disabled: !name.trim(), onClick: () => setStep(2), style: { opacity: name.trim() ? 1 : .5 } }, "Continue")));
+
+  if (step === 2) return React.createElement("div", { className: "page flex flex-col", style: { justifyContent: "center", minHeight: "100dvh", padding: "32px 24px" } },
+    React.createElement("div", { style: { animation: "fadeUp .4s ease" } },
+      React.createElement("p", { className: "label mb-2" }, "Step 2 of 4"),
+      React.createElement("h2", { className: "mb-4" }, "What's your goal?"),
+      React.createElement("div", { className: "flex flex-col gap-2" },
+        GOALS.map(g => React.createElement("button", { key: g, className: "card flex items-center gap-3", style: { cursor: "pointer", borderColor: goal === g ? "var(--accent)" : "var(--surface2)", background: goal === g ? "var(--accent-glow)" : "var(--surface)" }, onClick: () => setGoal(g) },
+          React.createElement(Icon, { name: g === "Build Muscle" ? "dumbbell" : g === "Lose Weight" ? "flame" : g === "Improve Fitness" ? "zap" : "target", size: 20, color: goal === g ? "var(--accent)" : "var(--text3)" }),
+          React.createElement("span", { className: "font-medium" }, g)))),
+      React.createElement("button", { className: "btn btn-primary btn-full mt-4", disabled: !goal, onClick: () => setStep(3), style: { opacity: goal ? 1 : .5 } }, "Continue")));
+
+  if (step === 3) return React.createElement("div", { className: "page flex flex-col", style: { justifyContent: "center", minHeight: "100dvh", padding: "32px 24px" } },
+    React.createElement("div", { style: { animation: "fadeUp .4s ease" } },
+      React.createElement("p", { className: "label mb-2" }, "Step 3 of 4"),
+      React.createElement("h2", { className: "mb-4" }, "Where do you work out?"),
+      React.createElement("div", { className: "flex gap-2" },
+        SETTINGS_OPTIONS.map(s => React.createElement("button", { key: s, className: "chip", style: { flex: 1, padding: 14, justifyContent: "center", fontSize: 14, borderColor: setting === s ? "var(--accent)" : "transparent", background: setting === s ? "var(--accent-glow)" : "var(--surface2)", color: setting === s ? "var(--accent)" : "var(--text2)" }, onClick: () => setSetting(s) }, s))),
+      React.createElement("button", { className: "btn btn-primary btn-full mt-4", onClick: () => setStep(4) }, "Continue")));
+
+  return React.createElement("div", { className: "page flex flex-col", style: { justifyContent: "center", minHeight: "100dvh", padding: "32px 24px" } },
+    React.createElement("div", { style: { animation: "fadeUp .4s ease" } },
+      React.createElement("p", { className: "label mb-2" }, "Step 4 of 4"),
+      React.createElement("h2", { className: "mb-4" }, "Weekly target?"),
+      React.createElement("div", { className: "flex gap-2" },
+        [3,4,5].map(d => React.createElement("button", { key: d, className: "chip", style: { flex: 1, padding: 14, justifyContent: "center", fontSize: 18, fontWeight: 700, borderColor: days === d ? "var(--accent)" : "transparent", background: days === d ? "var(--accent-glow)" : "var(--surface2)", color: days === d ? "var(--accent)" : "var(--text2)" }, onClick: () => setDays(d) }, d + " days"))),
+      React.createElement("button", { className: "btn btn-green btn-full mt-4", style: { padding: 16, fontSize: 16 }, onClick: finish },
+        React.createElement(Icon, { name: "zap", size: 20, color: "#064E3B" }), " Let's Go!")));
+}
+
+// ─── Home Page ───
+function HomePage({ profile, todayLabel, todayWorkout, weeklyCompleted, streak, calories, bodyStats, startWorkout, setModal, setPage }) {
+  const isRest = !todayWorkout;
+  const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; };
+  const latestWeight = bodyStats.length > 0 ? bodyStats[bodyStats.length-1].weight : null;
+
+  return React.createElement("div", { className: "page" },
+    // Header
+    React.createElement("div", { className: "flex justify-between items-center mb-4" },
+      React.createElement("div", null,
+        React.createElement("p", { className: "text-muted text-sm" }, greeting()),
+        React.createElement("h1", null, (profile.name || "Hey") + " \uD83D\uDC4B")),
+      streak > 0 && React.createElement("div", { className: "streak-badge" },
+        React.createElement(Icon, { name: "flame", size: 14, color: "#78350F" }), " ", streak)),
+    // Today Card
+    React.createElement("div", { className: "card", style: { background: isRest ? "var(--surface)" : "linear-gradient(135deg, #7C5CFC15, #9B7BFC10)", borderColor: isRest ? "var(--surface2)" : "rgba(124,92,252,0.3)" } },
+      React.createElement("p", { className: "label" }, dayName() + "'s Plan"),
+      React.createElement("h2", { style: { marginTop: 4, marginBottom: 4 } }, todayLabel),
+      todayWorkout ? React.createElement("div", null,
+        React.createElement("p", { className: "text-muted text-sm" }, todayWorkout.exercises.length + " exercises"),
+        React.createElement("button", { className: "btn btn-primary btn-full mt-3", style: { padding: 16 }, onClick: () => startWorkout(todayWorkout) },
+          React.createElement(Icon, { name: "play", size: 18, color: "white" }), " Start Workout"))
+      : React.createElement("p", { className: "text-muted text-sm mt-2" }, "Take it easy today. You've earned it! \uD83E\uDDD8")),
+    // Stats
+    React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }, className: "mb-3" },
+      React.createElement("div", { className: "stat-card" },
+        React.createElement("div", { className: "flex items-center gap-2" },
+          React.createElement(Ring, { pct: (weeklyCompleted / 4) * 100, size: 40, stroke: 4 }),
+          React.createElement("div", null,
+            React.createElement("div", { className: "stat-value" }, weeklyCompleted, React.createElement("span", { style: { fontSize: 14, color: "var(--text3)" } }, "/4")),
+            React.createElement("div", { className: "stat-label" }, "This Week")))),
+      React.createElement("div", { className: "stat-card" },
+        React.createElement("div", { className: "stat-value", style: { color: "var(--orange)" } }, streak),
+        React.createElement("div", { className: "stat-label" }, "Day Streak")),
+      React.createElement("div", { className: "stat-card" },
+        React.createElement("div", { className: "stat-value", style: { color: "var(--green)" } }, "~" + calories),
+        React.createElement("div", { className: "stat-label" }, "Cals Burned")),
+      React.createElement("div", { className: "stat-card" },
+        React.createElement("div", { className: "stat-value" }, latestWeight || "\u2014"),
+        React.createElement("div", { className: "stat-label" }, latestWeight ? "lbs" : "Weight"))),
+    // Quick Actions
+    React.createElement("p", { className: "label mb-2" }, "Quick Actions"),
+    React.createElement("div", { className: "quick-actions mb-3" },
+      React.createElement("button", { className: "quick-action", onClick: () => setPage("photos") }, React.createElement(Icon, { name: "camera", size: 20, color: "var(--pink)" }), "Photo"),
+      React.createElement("button", { className: "quick-action", onClick: () => setModal(React.createElement(TimerModal, null)) }, React.createElement(Icon, { name: "timer", size: 20, color: "var(--accent)" }), "Timer"),
+      React.createElement("button", { className: "quick-action", onClick: () => setPage("stats") }, React.createElement(Icon, { name: "run", size: 20, color: "var(--green)" }), "Cardio"),
+      React.createElement("button", { className: "quick-action", onClick: () => setPage("stats") }, React.createElement(Icon, { name: "heart", size: 20, color: "var(--red)" }), "Check-in")),
+    // Week Schedule
+    React.createElement("p", { className: "label mb-2" }, "This Week"),
+    React.createElement("div", { className: "card", style: { padding: 12 } },
+      DAYS.map((d, i) => {
+        const wid = SCHEDULE[d]; const w = wid ? DEFAULT_WORKOUTS.find(x => x.id === wid) : null;
+        const isToday = i === new Date().getDay();
+        return React.createElement("div", { key: d, className: "flex items-center gap-3", style: { padding: "8px 6px", borderRadius: 8, background: isToday ? "var(--accent-glow)" : "transparent" } },
+          React.createElement("span", { className: "text-xs font-medium", style: { width: 32, color: isToday ? "var(--accent)" : "var(--text3)" } }, d.slice(0, 3)),
+          React.createElement("span", { className: "text-sm", style: { flex: 1, color: w ? "var(--text)" : "var(--text3)" } }, w ? w.name : (d === "Wednesday" || d === "Saturday" ? "Cardio" : "Rest")),
+          isToday && React.createElement("span", { style: { width: 6, height: 6, borderRadius: 3, background: "var(--accent)" } }));
+      })));
+}
+
+// ─── Workouts Page ───
+function WorkoutsPage({ workouts, setWorkouts, startWorkout, setModal }) {
+  const [editing, setEditing] = useState(null);
+
+  const addExercise = (wIdx) => {
+    setModal(React.createElement(AddExerciseModal, { onAdd: (ex) => {
+      const next = [...workouts]; next[wIdx].exercises.push({ ...ex, id: uid(), done: false }); setWorkouts(next); setModal(null);
+    }}));
+  };
+  const removeExercise = (wIdx, eIdx) => { const next = [...workouts]; next[wIdx].exercises.splice(eIdx, 1); setWorkouts(next); };
+
+  return React.createElement("div", { className: "page" },
+    React.createElement("h1", { className: "mb-4" }, "Workouts"),
+    workouts.map((w, wIdx) => React.createElement("div", { key: w.id, className: "card" },
+      React.createElement("div", { className: "flex justify-between items-center mb-2" },
+        React.createElement("div", null,
+          React.createElement("h3", null, w.name),
+          React.createElement("p", { className: "text-xs text-muted" }, w.day + " \u00B7 " + w.exercises.length + " exercises")),
+        React.createElement("div", { className: "flex gap-2" },
+          React.createElement("button", { className: "btn btn-ghost btn-sm", onClick: () => setEditing(editing === wIdx ? null : wIdx) }, React.createElement(Icon, { name: "edit", size: 16 })),
+          React.createElement("button", { className: "btn btn-primary btn-sm", onClick: () => startWorkout(w) }, React.createElement(Icon, { name: "play", size: 14, color: "white" }), " Start"))),
+      w.exercises.map((ex, eIdx) => React.createElement("div", { key: ex.id, className: "exercise-row" },
+        React.createElement("div", { style: { flex: 1 } },
+          React.createElement("p", { className: "font-medium text-sm" }, ex.name),
+          React.createElement("p", { className: "text-xs text-muted" }, ex.sets + "\u00D7" + (ex.type === "timed" ? ex.reps + "s" : ex.reps) + " \u00B7 " + ex.weight)),
+        editing === wIdx && React.createElement("button", { className: "btn btn-ghost btn-sm", onClick: () => removeExercise(wIdx, eIdx), style: { color: "var(--red)" } }, React.createElement(Icon, { name: "trash", size: 14, color: "var(--red)" })))),
+      editing === wIdx && React.createElement("button", { className: "btn btn-secondary btn-sm btn-full mt-2", onClick: () => addExercise(wIdx) }, React.createElement(Icon, { name: "plus", size: 14 }), " Add Exercise"))));
+}
+
+// ─── Active Workout ───
+function ActiveWorkoutPage({ workout, toggleExercise, completeWorkout, setPage, setModal, setActiveWorkout }) {
+  const allDone = workout.exercises.every(e => e.done);
+  const donePct = (workout.exercises.filter(e => e.done).length / workout.exercises.length) * 100;
+  const [restSecs, setRestSecs] = useState(null);
+  const restRef = useRef(null);
+
+  const doRest = (secs) => {
+    if (restRef.current) clearInterval(restRef.current);
+    setRestSecs(secs);
+    restRef.current = setInterval(() => setRestSecs(prev => { if (prev <= 1) { clearInterval(restRef.current); return null; } return prev - 1; }), 1000);
+  };
+  const skipRest = () => { clearInterval(restRef.current); setRestSecs(null); };
+  useEffect(() => () => { if (restRef.current) clearInterval(restRef.current); }, []);
+
+  const openLog = (ex, eIdx) => {
+    if (ex.type === "timed") {
+      setModal(React.createElement(TimerModal, { initialTime: ex.reps, onSave: (duration) => {
+        setActiveWorkout(prev => ({...prev, exercises: prev.exercises.map((e, i) => i === eIdx ? {...e, done: true, reps: duration} : e)})); setModal(null);
+      }}));
+    } else {
+      setModal(React.createElement(ExerciseLogModal, { exercise: ex, onSave: (updated) => {
+        setActiveWorkout(prev => ({...prev, exercises: prev.exercises.map((e, i) => i === eIdx ? {...e, ...updated} : e)})); setModal(null);
+      }}));
+    }
+  };
+
+  return React.createElement("div", { className: "page", style: { paddingBottom: 120 } },
+    React.createElement("div", { className: "flex justify-between items-center mb-3" },
+      React.createElement("button", { className: "btn btn-ghost", onClick: () => { if (confirm("Leave workout?")) setPage("home"); } }, React.createElement(Icon, { name: "x", size: 20 }), " Exit"),
+      React.createElement("h3", null, workout.name),
+      React.createElement("div", { style: { width: 60 } })),
+    React.createElement("div", { className: "flex items-center gap-3 mb-4" },
+      React.createElement(Ring, { pct: donePct, size: 52, stroke: 5, color: "var(--green)" }),
+      React.createElement("div", null,
+        React.createElement("p", { className: "font-bold" }, workout.exercises.filter(e => e.done).length + "/" + workout.exercises.length + " Done"),
+        React.createElement("p", { className: "text-xs text-muted" }, "Keep going!"))),
+    workout.exercises.map((ex, eIdx) => React.createElement("div", { key: ex.id, className: "exercise-row", style: { opacity: ex.done ? .6 : 1 } },
+      React.createElement("div", { className: `check-circle ${ex.done ? "done" : ""}`, onClick: () => { toggleExercise(null, eIdx); if (!ex.done) doRest(60); } },
+        ex.done && React.createElement(Icon, { name: "check", size: 16, color: "white" })),
+      React.createElement("div", { style: { flex: 1, cursor: "pointer" }, onClick: () => openLog(ex, eIdx) },
+        React.createElement("p", { className: "font-medium text-sm", style: { textDecoration: ex.done ? "line-through" : "none" } }, ex.name),
+        React.createElement("p", { className: "text-xs text-muted" }, ex.sets + "\u00D7" + (ex.type === "timed" ? ex.reps + "s" : ex.reps) + " \u00B7 " + ex.weight + (ex.notes ? " \u00B7 " + ex.notes : ""))),
+      ex.type === "timed" && React.createElement("button", { className: "btn btn-ghost btn-sm", onClick: () => openLog(ex, eIdx) }, React.createElement(Icon, { name: "timer", size: 16, color: "var(--accent)" })))),
+    restSecs !== null && React.createElement("div", { className: "rest-timer-bar" },
+      React.createElement("div", { className: "flex items-center gap-2" },
+        React.createElement(Icon, { name: "timer", size: 18, color: "var(--accent)" }),
+        React.createElement("span", { className: "font-bold", style: { fontVariantNumeric: "tabular-nums", fontSize: 20 } }, restSecs + "s"),
+        React.createElement("span", { className: "text-sm text-muted" }, "rest")),
+      React.createElement("div", { className: "flex gap-2" },
+        [30,60,90].map(s => React.createElement("button", { key: s, className: "btn btn-ghost btn-sm", onClick: () => doRest(s) }, s + "s")),
+        React.createElement("button", { className: "btn btn-ghost btn-sm", onClick: skipRest, style: { color: "var(--green)" } }, "Skip"))),
+    React.createElement("div", { style: { position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, padding: "16px 16px max(16px, env(safe-area-inset-bottom))", background: "var(--bg)" } },
+      React.createElement("button", { className: `btn btn-full ${allDone ? "btn-green" : "btn-secondary"}`, style: { padding: 16 }, onClick: () => { completeWorkout(workout); setPage("home"); } },
+        React.createElement(Icon, { name: "check", size: 18, color: allDone ? "#064E3B" : "var(--text3)" }),
+        allDone ? " Complete Workout! \uD83C\uDF89" : " Finish Workout")));
+}
+
+// ─── Timer Modal ───
+function TimerModal({ initialTime = 45, onSave }) {
+  const [time, setTime] = useState(0);
+  const [running, setRunning] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => { if (running) { ref.current = setInterval(() => setTime(t => t + 1), 1000); } else { clearInterval(ref.current); } return () => clearInterval(ref.current); }, [running]);
+  const fmt = s => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,"0")}`;
+
+  return React.createElement("div", { className: "text-center" },
+    React.createElement("h2", { className: "mb-3" }, "\u23F1 Timer"),
+    React.createElement("div", { className: "timer-display mb-2" }, fmt(time)),
+    React.createElement("p", { className: "text-muted text-sm mb-4" }, "Target: " + fmt(initialTime)),
+    React.createElement("div", { className: "progress-bar mb-4", style: { height: 8 } },
+      React.createElement("div", { className: "progress-bar-fill", style: { width: Math.min((time/initialTime)*100, 100) + "%", background: time >= initialTime ? "var(--green)" : "var(--accent)" } })),
+    React.createElement("div", { className: "flex gap-2" },
+      React.createElement("button", { className: "btn btn-primary", style: { flex: 1 }, onClick: () => setRunning(!running) },
+        React.createElement(Icon, { name: running ? "pause" : "play", size: 18, color: "white" }), running ? " Pause" : time > 0 ? " Resume" : " Start"),
+      React.createElement("button", { className: "btn btn-secondary", onClick: () => { setTime(0); setRunning(false); } }, "Reset"),
+      onSave && React.createElement("button", { className: "btn btn-green", onClick: () => onSave(time) }, "Save")));
+}
+
+// ─── Exercise Log Modal ───
+function ExerciseLogModal({ exercise, onSave }) {
+  const [sets, setSets] = useState(exercise.sets);
+  const [reps, setReps] = useState(exercise.reps);
+  const [weight, setWeight] = useState(exercise.weight);
+  const [notes, setNotes] = useState(exercise.notes || "");
+
+  return React.createElement("div", null,
+    React.createElement("h2", { className: "mb-3" }, exercise.name),
+    React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }, className: "mb-3" },
+      React.createElement("div", null, React.createElement("p", { className: "label" }, "Sets"), React.createElement("input", { className: "input input-sm text-center", type: "number", value: sets, onChange: e => setSets(+e.target.value) })),
+      React.createElement("div", null, React.createElement("p", { className: "label" }, "Reps"), React.createElement("input", { className: "input input-sm text-center", type: "number", value: reps, onChange: e => setReps(+e.target.value) })),
+      React.createElement("div", null, React.createElement("p", { className: "label" }, "Weight"), React.createElement("input", { className: "input input-sm text-center", value: weight, onChange: e => setWeight(e.target.value) }))),
+    React.createElement("p", { className: "label" }, "Notes"),
+    React.createElement("input", { className: "input mb-3", placeholder: "Felt easy, increase next week...", value: notes, onChange: e => setNotes(e.target.value) }),
+    React.createElement("div", { className: "flex gap-2 mt-2", style: { flexWrap: "wrap" } },
+      ["Felt easy","Increase next week","Bad form","Too heavy"].map(n =>
+        React.createElement("button", { key: n, className: "chip", onClick: () => setNotes(notes ? notes + ", " + n.toLowerCase() : n.toLowerCase()) }, n))),
+    React.createElement("button", { className: "btn btn-primary btn-full mt-4", onClick: () => onSave({ sets, reps, weight, notes, done: true }) },
+      React.createElement(Icon, { name: "check", size: 16, color: "white" }), " Save & Mark Done"));
+}
+
+// ─── Add Exercise Modal ───
+function AddExerciseModal({ onAdd }) {
+  const [name, setName] = useState("");
+  const [sets, setSets] = useState(3);
+  const [reps, setReps] = useState(12);
+  const [weight, setWeight] = useState("BW");
+  const [type, setType] = useState("reps");
+
+  return React.createElement("div", null,
+    React.createElement("h2", { className: "mb-3" }, "Add Exercise"),
+    React.createElement("p", { className: "label" }, "Name"),
+    React.createElement("input", { className: "input mb-3", placeholder: "Exercise name", value: name, onChange: e => setName(e.target.value), autoFocus: true }),
+    React.createElement("div", { className: "flex gap-2 mb-3" },
+      React.createElement("button", { className: `chip ${type === "reps" ? "active" : ""}`, onClick: () => setType("reps") }, "Reps"),
+      React.createElement("button", { className: `chip ${type === "timed" ? "active" : ""}`, onClick: () => setType("timed") }, "Timed")),
+    React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }, className: "mb-3" },
+      React.createElement("div", null, React.createElement("p", { className: "label" }, "Sets"), React.createElement("input", { className: "input input-sm text-center", type: "number", value: sets, onChange: e => setSets(+e.target.value) })),
+      React.createElement("div", null, React.createElement("p", { className: "label" }, type === "timed" ? "Seconds" : "Reps"), React.createElement("input", { className: "input input-sm text-center", type: "number", value: reps, onChange: e => setReps(+e.target.value) })),
+      React.createElement("div", null, React.createElement("p", { className: "label" }, "Weight"), React.createElement("input", { className: "input input-sm text-center", value: weight, onChange: e => setWeight(e.target.value) }))),
+    React.createElement("button", { className: "btn btn-primary btn-full", disabled: !name.trim(), onClick: () => onAdd({ name, sets, reps, weight, type, notes: "" }), style: { opacity: name.trim() ? 1 : .5 } },
+      React.createElement(Icon, { name: "plus", size: 16, color: "white" }), " Add"));
+}
+
+// ─── Progress Page ───
+function ProgressPage({ history, cardioLogs, bodyStats }) {
+  const [tab, setTab] = useState("calendar");
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+  const completedDates = new Set(history.map(h => h.date));
+
+  const last4Weeks = Array.from({length: 4}, (_, i) => {
+    const ws = new Date(now); ws.setDate(now.getDate() - now.getDay() - (i * 7)); ws.setHours(0,0,0,0);
+    const we = new Date(ws); we.setDate(ws.getDate() + 7);
+    return history.filter(h => { const d = new Date(h.date + "T00:00:00"); return d >= ws && d < we; }).length;
+  }).reverse();
+
+  return React.createElement("div", { className: "page" },
+    React.createElement("h1", { className: "mb-4" }, "Progress"),
+    React.createElement("div", { className: "tab-bar mb-4" },
+      ["calendar","weekly","exercises"].map(t => React.createElement("button", { key: t, className: `tab ${tab === t ? "active" : ""}`, onClick: () => setTab(t) }, t.charAt(0).toUpperCase() + t.slice(1)))),
+    tab === "calendar" && React.createElement("div", { className: "card" },
+      React.createElement("h3", { className: "mb-3" }, now.toLocaleString("default", { month: "long", year: "numeric" })),
+      React.createElement("div", { className: "cal-grid mb-2" }, ["S","M","T","W","T","F","S"].map((d,i) => React.createElement("div", { key: i, className: "cal-cell", style: { fontWeight: 600, fontSize: 11 } }, d))),
+      React.createElement("div", { className: "cal-grid" },
+        Array.from({length: firstDay}, (_, i) => React.createElement("div", { key: "e"+i, className: "cal-cell" })),
+        Array.from({length: daysInMonth}, (_, i) => {
+          const day = i + 1;
+          const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+          const done = completedDates.has(dateStr);
+          const isToday = day === now.getDate();
+          const dayOfWeek = new Date(year, month, day).getDay();
+          const isWorkoutDay = !!SCHEDULE[DAYS[dayOfWeek]];
+          return React.createElement("div", { key: day, className: `cal-cell ${done ? "done" : ""} ${isToday ? "today" : ""} ${!isWorkoutDay && !done ? "rest" : ""}` }, day);
+        })),
+      React.createElement("div", { className: "flex gap-3 mt-3", style: { justifyContent: "center" } },
+        React.createElement("div", { className: "flex items-center gap-2" }, React.createElement("div", { style: { width: 10, height: 10, borderRadius: 2, background: "var(--green)" } }), React.createElement("span", { className: "text-xs text-muted" }, "Completed")),
+        React.createElement("div", { className: "flex items-center gap-2" }, React.createElement("div", { style: { width: 10, height: 10, borderRadius: 2, background: "var(--surface2)" } }), React.createElement("span", { className: "text-xs text-muted" }, "Rest")))),
+    tab === "weekly" && React.createElement("div", { className: "card" },
+      React.createElement("h3", { className: "mb-3" }, "Last 4 Weeks"),
+      React.createElement("div", { className: "flex gap-3 items-end", style: { height: 120 } },
+        last4Weeks.map((count, i) => React.createElement("div", { key: i, style: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 } },
+          React.createElement("span", { className: "text-xs font-bold" }, count),
+          React.createElement("div", { style: { width: "100%", height: Math.max((count/5)*100, 8) + "%", background: i === 3 ? "var(--accent)" : "var(--surface3)", borderRadius: 6, minHeight: 8 } }),
+          React.createElement("span", { className: "text-xs text-muted" }, "W" + (i+1))))),
+      React.createElement("div", { className: "mt-4" },
+        React.createElement("p", { className: "text-sm text-muted" }, "Total workouts: ", React.createElement("span", { className: "font-bold text-accent" }, history.length)),
+        React.createElement("p", { className: "text-sm text-muted mt-2" }, "Cardio sessions: ", React.createElement("span", { className: "font-bold", style: { color: "var(--green)" } }, cardioLogs.length)))),
+    tab === "exercises" && React.createElement("div", null,
+      history.length === 0 ? React.createElement("div", { className: "card text-center", style: { padding: 40 } }, React.createElement("p", { className: "text-muted" }, "Complete your first workout to see exercise history!"))
+      : [...new Set(history.flatMap(h => h.exercises.map(e => e.name)))].slice(0, 10).map(name => {
+        const logs = history.flatMap(h => h.exercises.filter(e => e.name === name && e.done));
+        const latest = logs[logs.length - 1];
+        return React.createElement("div", { key: name, className: "card" },
+          React.createElement("div", { className: "flex justify-between items-center" },
+            React.createElement("div", null,
+              React.createElement("p", { className: "font-medium text-sm" }, name),
+              React.createElement("p", { className: "text-xs text-muted" }, "Logged " + logs.length + " times")),
+            latest && React.createElement("p", { className: "text-sm text-accent font-bold" }, latest.sets + "\u00D7" + latest.reps + " \u00B7 " + latest.weight)));
+      })));
+}
+
+// ─── Photos Page (IndexedDB backed) ───
+function PhotosPage() {
+  const [photos, setPhotos] = useState([]);
+  const [tag, setTag] = useState("front");
+  const [loading, setLoading] = useState(true);
+  const fileRef = useRef(null);
+
+  useEffect(() => { PhotoDB.getAll().then(p => { setPhotos(p); setLoading(false); }).catch(() => setLoading(false)); }, []);
+
+  const handleUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    // Compress image before storing
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) { if (w > h) { h = h * MAX / w; w = MAX; } else { w = w * MAX / h; h = MAX; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL("image/jpeg", 0.7);
+        const photo = { id: uid(), date: todayStr(), tag, src: compressed };
+        PhotoDB.add(photo).then(() => setPhotos(prev => [photo, ...prev]));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const deletePhoto = async (id) => {
+    if (!confirm("Delete this photo?")) return;
+    await PhotoDB.remove(id);
+    setPhotos(prev => prev.filter(p => p.id !== id));
+  };
+
+  const filtered = photos.filter(p => p.tag === tag);
+
+  return React.createElement("div", { className: "page" },
+    React.createElement("div", { className: "flex justify-between items-center mb-4" },
+      React.createElement("h1", null, "Photos"),
+      React.createElement("button", { className: "btn btn-primary btn-sm", onClick: () => fileRef.current?.click() }, React.createElement(Icon, { name: "plus", size: 14, color: "white" }), " Add")),
+    React.createElement("input", { ref: fileRef, type: "file", accept: "image/*", capture: "environment", style: { display: "none" }, onChange: handleUpload }),
+    React.createElement("div", { className: "flex gap-2 mb-3" },
+      ["front","side","back"].map(t => React.createElement("button", { key: t, className: `chip ${tag === t ? "active" : ""}`, onClick: () => setTag(t) }, t.charAt(0).toUpperCase() + t.slice(1)))),
+    loading ? React.createElement("div", { className: "card text-center", style: { padding: 40 } }, React.createElement("p", { className: "text-muted" }, "Loading photos..."))
+    : filtered.length === 0 ? React.createElement("div", { className: "card text-center", style: { padding: 48 } },
+        React.createElement("div", { style: { fontSize: 40, marginBottom: 12 } }, "\uD83D\uDCF8"),
+        React.createElement("p", { className: "font-medium mb-2" }, "No " + tag + " photos yet"),
+        React.createElement("p", { className: "text-sm text-muted mb-3" }, "Take your first photo to start tracking your transformation"),
+        React.createElement("button", { className: "btn btn-primary btn-sm", onClick: () => fileRef.current?.click() },
+          React.createElement(Icon, { name: "camera", size: 14, color: "white" }), " Take Photo"))
+    : React.createElement("div", { className: "photo-grid" },
+        filtered.map(p => React.createElement("div", { key: p.id, className: "photo-cell", onClick: () => deletePhoto(p.id) },
+          React.createElement("img", { src: p.src, alt: p.tag, loading: "lazy" })))),
+    photos.length > 0 && React.createElement("p", { className: "text-xs text-muted text-center mt-3" }, "Photos stored on-device in IndexedDB \u00B7 Tap to delete"));
+}
+
+// ─── Stats Page ───
+function StatsPage({ bodyStats, setBodyStats, cardioLogs, setCardioLogs, setModal }) {
+  const [tab, setTab] = useState("checkin");
+
+  return React.createElement("div", { className: "page" },
+    React.createElement("h1", { className: "mb-4" }, "Stats"),
+    React.createElement("div", { className: "tab-bar mb-4" },
+      React.createElement("button", { className: `tab ${tab === "checkin" ? "active" : ""}`, onClick: () => setTab("checkin") }, "Check-in"),
+      React.createElement("button", { className: `tab ${tab === "cardio" ? "active" : ""}`, onClick: () => setTab("cardio") }, "Cardio"),
+      React.createElement("button", { className: `tab ${tab === "history" ? "active" : ""}`, onClick: () => setTab("history") }, "History")),
+    tab === "checkin" && React.createElement("div", null,
+      React.createElement("button", { className: "btn btn-primary btn-full mb-4", onClick: () => setModal(React.createElement(CheckinModal, { onSave: (entry) => { setBodyStats(prev => [...prev, {...entry, date: todayStr()}]); setModal(null); } })) },
+        React.createElement(Icon, { name: "plus", size: 16, color: "white" }), " Daily Check-in"),
+      bodyStats.length > 0 ? React.createElement("div", null,
+        React.createElement("div", { className: "card" },
+          React.createElement("h3", { className: "mb-2" }, "Latest Check-in"),
+          (() => { const s = bodyStats[bodyStats.length - 1]; return React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 } },
+            s.weight && React.createElement("div", null, React.createElement("p", { className: "label" }, "Weight"), React.createElement("p", { className: "font-bold" }, s.weight + " lbs")),
+            s.sleep && React.createElement("div", null, React.createElement("p", { className: "label" }, "Sleep"), React.createElement("p", { className: "font-bold" }, s.sleep + " hrs")),
+            s.energy && React.createElement("div", null, React.createElement("p", { className: "label" }, "Energy"), React.createElement("p", { className: "font-bold" }, "\u26A1".repeat(s.energy))),
+            s.soreness && React.createElement("div", null, React.createElement("p", { className: "label" }, "Soreness"), React.createElement("p", { className: "font-bold" }, "\uD83D\uDD25".repeat(s.soreness)))); })()),
+        bodyStats.filter(s => s.weight).length > 1 && React.createElement("div", { className: "card mt-3" },
+          React.createElement("h3", { className: "mb-3" }, "Weight Trend"),
+          React.createElement("div", { className: "flex items-end gap-2", style: { height: 80 } },
+            bodyStats.filter(s => s.weight).slice(-10).map((s, i, arr) => {
+              const min = Math.min(...arr.map(x => x.weight)), max = Math.max(...arr.map(x => x.weight)), range = max - min || 1;
+              return React.createElement("div", { key: i, style: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 } },
+                React.createElement("span", { className: "text-xs", style: { fontSize: 9 } }, s.weight),
+                React.createElement("div", { style: { width: "100%", height: ((s.weight - min) / range) * 60 + 20, background: "var(--accent)", borderRadius: 4, minHeight: 8 } })); }))))
+      : React.createElement("div", { className: "card text-center", style: { padding: 40 } }, React.createElement("p", { className: "text-muted" }, "Log your first check-in to start tracking"))),
+    tab === "cardio" && React.createElement("div", null,
+      React.createElement("button", { className: "btn btn-green btn-full mb-4", onClick: () => setModal(React.createElement(CardioModal, { onSave: (entry) => { setCardioLogs(prev => [...prev, {...entry, date: todayStr()}]); setModal(null); } })) },
+        React.createElement(Icon, { name: "run", size: 16, color: "#064E3B" }), " Log Cardio"),
+      cardioLogs.length === 0 ? React.createElement("div", { className: "card text-center", style: { padding: 40 } }, React.createElement("p", { className: "text-muted" }, "No cardio sessions yet"))
+      : cardioLogs.slice().reverse().map((c, i) => React.createElement("div", { key: i, className: "card" },
+          React.createElement("div", { className: "flex justify-between items-center" },
+            React.createElement("div", null, React.createElement("p", { className: "font-medium text-sm" }, c.type), React.createElement("p", { className: "text-xs text-muted" }, c.date)),
+            React.createElement("div", { className: "text-right" }, React.createElement("p", { className: "text-sm font-bold" }, c.duration + " min"), c.calories && React.createElement("p", { className: "text-xs text-muted" }, "~" + c.calories + " cal")))))),
+    tab === "history" && React.createElement("div", null,
+      bodyStats.length === 0 && cardioLogs.length === 0 ? React.createElement("div", { className: "card text-center", style: { padding: 40 } }, React.createElement("p", { className: "text-muted" }, "No history yet"))
+      : [...bodyStats.map(s => ({...s, _type: "checkin"})), ...cardioLogs.map(c => ({...c, _type: "cardio"}))]
+          .sort((a, b) => b.date.localeCompare(a.date)).slice(0, 20)
+          .map((entry, i) => React.createElement("div", { key: i, className: "card", style: { padding: 12 } },
+            React.createElement("div", { className: "flex items-center gap-2" },
+              React.createElement(Icon, { name: entry._type === "checkin" ? "heart" : "run", size: 16, color: entry._type === "checkin" ? "var(--pink)" : "var(--green)" }),
+              React.createElement("span", { className: "text-sm font-medium" }, entry._type === "checkin" ? "Check-in" : entry.type),
+              React.createElement("span", { className: "text-xs text-muted", style: { marginLeft: "auto" } }, entry.date))))));
+}
+
+// ─── Checkin Modal ───
+function CheckinModal({ onSave }) {
+  const [weight, setWeight] = useState("");
+  const [sleep, setSleep] = useState("");
+  const [energy, setEnergy] = useState(3);
+  const [soreness, setSoreness] = useState(2);
+
+  return React.createElement("div", null,
+    React.createElement("h2", { className: "mb-3" }, "Daily Check-in"),
+    React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }, className: "mb-3" },
+      React.createElement("div", null, React.createElement("p", { className: "label" }, "Weight (lbs)"), React.createElement("input", { className: "input", type: "number", placeholder: "165", value: weight, onChange: e => setWeight(e.target.value) })),
+      React.createElement("div", null, React.createElement("p", { className: "label" }, "Sleep (hrs)"), React.createElement("input", { className: "input", type: "number", placeholder: "7.5", step: "0.5", value: sleep, onChange: e => setSleep(e.target.value) }))),
+    React.createElement("p", { className: "label mb-2" }, "Energy Level"),
+    React.createElement("div", { className: "flex gap-2 mb-3" },
+      [1,2,3,4,5].map(n => React.createElement("button", { key: n, className: `chip ${energy === n ? "active" : ""}`, style: { flex: 1, justifyContent: "center" }, onClick: () => setEnergy(n) }, "\u26A1".repeat(n)))),
+    React.createElement("p", { className: "label mb-2" }, "Soreness"),
+    React.createElement("div", { className: "flex gap-2 mb-4" },
+      [1,2,3,4,5].map(n => React.createElement("button", { key: n, className: `chip ${soreness === n ? "active" : ""}`, style: { flex: 1, justifyContent: "center" }, onClick: () => setSoreness(n) }, "\uD83D\uDD25".repeat(n)))),
+    React.createElement("button", { className: "btn btn-primary btn-full", onClick: () => onSave({ weight: weight ? +weight : null, sleep: sleep ? +sleep : null, energy, soreness }) },
+      React.createElement(Icon, { name: "check", size: 16, color: "white" }), " Save Check-in"));
+}
+
+// ─── Cardio Modal ───
+function CardioModal({ onSave }) {
+  const [type, setType] = useState("Running");
+  const [duration, setDuration] = useState("30");
+  const [distance, setDistance] = useState("");
+  const [intensity, setIntensity] = useState("moderate");
+  const calcCals = () => { const d = +duration || 0; return Math.round(d * (intensity === "light" ? 5 : intensity === "moderate" ? 8 : 11)); };
+
+  return React.createElement("div", null,
+    React.createElement("h2", { className: "mb-3" }, "Log Cardio"),
+    React.createElement("p", { className: "label mb-2" }, "Activity"),
+    React.createElement("div", { className: "flex gap-2 mb-3", style: { flexWrap: "wrap" } },
+      CARDIO_TYPES.map(t => React.createElement("button", { key: t, className: `chip ${type === t ? "active" : ""}`, onClick: () => setType(t) }, t))),
+    React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }, className: "mb-3" },
+      React.createElement("div", null, React.createElement("p", { className: "label" }, "Duration (min)"), React.createElement("input", { className: "input", type: "number", value: duration, onChange: e => setDuration(e.target.value) })),
+      React.createElement("div", null, React.createElement("p", { className: "label" }, "Distance (mi)"), React.createElement("input", { className: "input", type: "number", placeholder: "Optional", step: "0.1", value: distance, onChange: e => setDistance(e.target.value) }))),
+    React.createElement("p", { className: "label mb-2" }, "Intensity"),
+    React.createElement("div", { className: "flex gap-2 mb-3" },
+      ["light","moderate","intense"].map(i => React.createElement("button", { key: i, className: `chip ${intensity === i ? "active" : ""}`, style: { flex: 1, justifyContent: "center" }, onClick: () => setIntensity(i) }, i.charAt(0).toUpperCase() + i.slice(1)))),
+    React.createElement("div", { className: "card mb-3", style: { background: "var(--surface2)", textAlign: "center" } },
+      React.createElement("p", { className: "text-xs text-muted" }, "Est. Calories"),
+      React.createElement("p", { className: "font-bold text-accent", style: { fontSize: 28 } }, "~" + calcCals())),
+    React.createElement("button", { className: "btn btn-green btn-full", onClick: () => onSave({ type, duration: +duration, distance: distance ? +distance : null, intensity, calories: calcCals() }) },
+      React.createElement(Icon, { name: "check", size: 16, color: "#064E3B" }), " Log Session"));
+}
+
+// ─── Settings Page ───
+function SettingsPage({ profile, setProfile, darkMode, setDarkMode, onReset }) {
+  return React.createElement("div", { className: "page" },
+    React.createElement("h1", { className: "mb-4" }, "Settings"),
+    React.createElement("div", { className: "card" },
+      React.createElement("h3", { className: "mb-3" }, "Profile"),
+      React.createElement("p", { className: "label" }, "Name"),
+      React.createElement("input", { className: "input mb-3", value: profile.name, onChange: e => setProfile({...profile, name: e.target.value}) }),
+      React.createElement("p", { className: "label" }, "Goal"),
+      React.createElement("div", { className: "flex gap-2 mb-3", style: { flexWrap: "wrap" } },
+        GOALS.map(g => React.createElement("button", { key: g, className: `chip ${profile.goal === g ? "active" : ""}`, onClick: () => setProfile({...profile, goal: g}) }, g))),
+      React.createElement("p", { className: "label" }, "Setting"),
+      React.createElement("div", { className: "flex gap-2" },
+        SETTINGS_OPTIONS.map(s => React.createElement("button", { key: s, className: `chip ${profile.setting === s ? "active" : ""}`, onClick: () => setProfile({...profile, setting: s}) }, s)))),
+    React.createElement("div", { className: "card" },
+      React.createElement("div", { className: "flex justify-between items-center" },
+        React.createElement("div", { className: "flex items-center gap-2" },
+          React.createElement(Icon, { name: darkMode ? "moon" : "sun", size: 18 }),
+          React.createElement("span", { className: "font-medium" }, "Dark Mode")),
+        React.createElement("button", { className: "btn btn-secondary btn-sm", onClick: () => setDarkMode(!darkMode), style: { minWidth: 60 } }, darkMode ? "On" : "Off"))),
+    React.createElement("div", { className: "card" },
+      React.createElement("h3", { className: "mb-2" }, "About"),
+      React.createElement("p", { className: "text-sm text-muted" }, "REPS v1.0"),
+      React.createElement("p", { className: "text-sm text-muted mt-2" }, "Your personal fitness companion. Built for consistency.")),
+    React.createElement("div", { className: "card", style: { background: "var(--surface2)", textAlign: "center", padding: 14 } },
+      React.createElement("p", { className: "text-xs text-muted" }, "\uD83D\uDCF1 Add to Home Screen for the full app experience"),
+      React.createElement("p", { className: "text-xs text-muted mt-2" }, "iOS: Share \u2192 Add to Home Screen"),
+      React.createElement("p", { className: "text-xs text-muted" }, "Android: Menu \u2192 Install App")),
+    React.createElement("button", { className: "btn btn-secondary btn-full mt-2", style: { color: "var(--red)" }, onClick: () => { if (confirm("Reset all data? This can't be undone.")) onReset(); } }, "Reset All Data"));
+}
+
+// ─── Mount ───
+ReactDOM.createRoot(document.getElementById("app")).render(React.createElement(App));
+
+// Register Service Worker for offline / PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
