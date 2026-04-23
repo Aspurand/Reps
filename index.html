@@ -150,7 +150,7 @@ html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-hei
 }
 .hazard-thin{height:4px}
 
-#app{max-width:430px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:1}
+#app{max-width:430px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:2}
 .page{flex:1;padding:20px 16px 120px;animation:fadeUp .4s cubic-bezier(.2,.8,.2,1); position:relative}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes checkmark{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.25) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
@@ -728,7 +728,18 @@ h3{font-family:var(--font-display);font-size:18px;font-weight:600;text-transform
 <div class="ember" style="left:38%;bottom:35%;animation-delay:6s"></div>
 <div class="ember" style="left:68%;bottom:40%;animation-delay:9s"></div>
 <div class="grain"></div>
-<div id="app"></div>
+<div id="app">
+  <div style="padding:40px 20px;text-align:center;color:#F5F0EA;font-family:'Oswald',Impact,sans-serif;position:relative;z-index:2">
+    <div style="font-size:72px;font-weight:700;letter-spacing:-2px;animation:preboot 1.2s infinite">REPS</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;color:rgba(245,240,234,0.5);margin-top:12px">LOADING ARSENAL...</div>
+    <noscript>
+      <div style="margin-top:40px;padding:20px;background:rgba(196,30,30,0.2);border:1px solid #C41E1E;border-radius:8px;font:14px/1.5 system-ui,sans-serif">
+        REPS needs JavaScript to run. Enable it and reload.
+      </div>
+    </noscript>
+  </div>
+</div>
+<style>@keyframes preboot{0%,100%{opacity:1}50%{opacity:.4}}</style>
 <script>
 // Surface any early script errors directly in #app so we don't stare at an empty shell.
 window.addEventListener('error', (e) => {
