@@ -729,10 +729,31 @@ h3{font-family:var(--font-display);font-size:18px;font-weight:600;text-transform
 <div class="ember" style="left:68%;bottom:40%;animation-delay:9s"></div>
 <div class="grain"></div>
 <div id="app"></div>
+<script>
+// Surface any early script errors directly in #app so we don't stare at an empty shell.
+window.addEventListener('error', (e) => {
+  try {
+    const app = document.getElementById('app');
+    if (!app) return;
+    const msg = (e.message || e.error && e.error.message || e.type) + '';
+    const where = (e.filename || '') + ':' + (e.lineno || '?') + ':' + (e.colno || '?');
+    const stack = (e.error && e.error.stack) || '';
+    app.innerHTML = '<pre style="color:#fff;background:#2a0612;border:1px solid #C41E1E;margin:20px;padding:16px;font:12px/1.4 \'JetBrains Mono\',monospace;white-space:pre-wrap;word-break:break-word;position:relative;z-index:2">REPS — startup error\n\n' +
+      msg.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) + '\n' + where + '\n\n' + stack.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) + '</pre>';
+  } catch {}
+});
+window.addEventListener('unhandledrejection', (e) => {
+  try {
+    const app = document.getElementById('app');
+    if (!app || app.children.length > 0) return;
+    app.innerHTML = '<pre style="color:#fff;background:#2a0612;border:1px solid #C41E1E;margin:20px;padding:16px;font:12px/1.4 monospace;white-space:pre-wrap;position:relative;z-index:2">REPS — unhandled rejection\n\n' + String(e.reason && e.reason.message || e.reason).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) + '</pre>';
+  } catch {}
+});
+</script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script type="text/babel" data-type="module">
+<script type="text/babel">
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 const h = React.createElement;
 
@@ -1067,14 +1088,18 @@ function App() {
   const [activeWorkout, setActiveWorkout] = useState(null);
 
   useEffect(() => {
+    // Each step is independent — a failure in one shouldn't block the UI from mounting.
     (async () => {
-      await migrateV1toV2();
-      const cat = await loadCatalog();
+      try { await migrateV1toV2(); } catch (e) { console.error("migrate failed", e); }
+      let cat = [];
+      try { cat = await loadCatalog(); } catch (e) { console.error("catalog load failed", e); }
       setCatalog(cat);
-      const sess = await DB.all("sessions").catch(() => []);
-      setSessions(sess.sort((a,b) => a.date.localeCompare(b.date)));
+      try {
+        const sess = await DB.all("sessions");
+        setSessions(sess.sort((a,b) => a.date.localeCompare(b.date)));
+      } catch (e) { console.error("sessions load failed", e); }
       if (cat.length && !S.get("workouts", null)) {
-        setWorkouts(buildDefaultWorkouts(cat));
+        try { setWorkouts(buildDefaultWorkouts(cat)); } catch (e) { console.error("seed workouts failed", e); }
       }
       setCatalogReady(true);
     })();
