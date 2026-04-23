@@ -56,8 +56,16 @@
 html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;overscroll-behavior:none;overflow-x:hidden}
 
 /* ============ ANIME PRE-BATTLE SKY ============ */
-.power-bg{
+/* All backgrounds share one fixed stage. Keeping them in a single layer
+   avoids iOS Safari/PWA compositing quirks where filter / mix-blend-mode /
+   backdrop-filter promote an element to its own layer that floats above
+   the rest of the page and ignores z-index. */
+.bg-stage{
   position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  isolation:isolate;
+}
+.power-bg{
+  position:absolute; inset:0; pointer-events:none; overflow:hidden;
   background:
     radial-gradient(ellipse 90% 60% at 50% 75%, #3A1020 0%, #120818 45%, #05040A 100%),
     linear-gradient(180deg, #05040A 0%, #0A0612 40%, #1A0820 100%);
@@ -84,7 +92,7 @@ html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-hei
   opacity:.6;
 }
 .lightning{
-  position:fixed; inset:0; z-index:0; pointer-events:none;
+  position:absolute; inset:0; pointer-events:none;
   background: radial-gradient(ellipse 60% 40% at 50% 20%, rgba(180,200,255,0.22), transparent 60%);
   opacity:0;
   animation: flash 9s infinite;
@@ -97,7 +105,7 @@ html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-hei
   98.5%{opacity:0}
 }
 .speed-lines{
-  position:fixed; inset:0; z-index:0; pointer-events:none;
+  position:absolute; inset:0; pointer-events:none;
   background-image:
     repeating-conic-gradient(from 0deg at 50% 22%,
       transparent 0deg, transparent 3deg,
@@ -106,12 +114,12 @@ html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-hei
   mask-image: radial-gradient(ellipse 80% 70% at 50% 22%, transparent 25%, black 55%, transparent 85%);
   opacity:.55;
 }
-.mountains{position:fixed; left:0; right:0; bottom:0; height:45vh; z-index:0; pointer-events:none}
+.mountains{position:absolute; left:0; right:0; bottom:0; height:45vh; pointer-events:none}
 .mountains svg{position:absolute;bottom:0;left:0;width:100%;height:100%;display:block}
-.vortex{position:fixed; left:50%; top:20%; transform:translateX(-50%); width:520px; height:520px; z-index:0; pointer-events:none; opacity:.55; mix-blend-mode:screen}
+.vortex{position:absolute; left:50%; top:20%; transform:translateX(-50%); width:520px; height:520px; pointer-events:none; opacity:.55; mix-blend-mode:screen}
 .vortex svg{width:100%;height:100%;animation:spin 40s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.bolts{position:fixed; inset:0; z-index:0; pointer-events:none}
+.bolts{position:absolute; inset:0; pointer-events:none}
 .bolts svg{position:absolute;width:100%;height:100%}
 .bolt{stroke:#C8D8FF; stroke-width:2; fill:none; filter: drop-shadow(0 0 6px #7FB0FF) drop-shadow(0 0 14px #3D6FD9); opacity:0}
 .bolt.b1{animation: zap 7s infinite; animation-delay:1.2s}
@@ -125,18 +133,18 @@ html,body{font-family:var(--font);background:var(--bg);color:var(--text);min-hei
   93%{opacity:0}
   100%{opacity:0}
 }
-.chains{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.42}
+.chains{position:absolute; inset:0; pointer-events:none; opacity:.42}
 .chains svg{position:absolute;width:100%;height:100%}
-.warrior{position:fixed; left:50%; bottom:8%; transform:translateX(-50%); z-index:0; pointer-events:none; filter: drop-shadow(0 0 26px rgba(255,107,61,0.55)) drop-shadow(0 0 48px rgba(196,30,30,0.35))}
+.warrior{position:absolute; left:50%; bottom:8%; transform:translateX(-50%); pointer-events:none; filter: drop-shadow(0 0 26px rgba(255,107,61,0.55)) drop-shadow(0 0 48px rgba(196,30,30,0.35))}
 .warrior svg{display:block;width:210px;height:auto}
-.warrior-aura{position:fixed; left:50%; bottom:6%; transform:translateX(-50%); width:340px; height:340px; z-index:0; pointer-events:none; opacity:.7; mix-blend-mode:screen}
+.warrior-aura{position:absolute; left:50%; bottom:6%; transform:translateX(-50%); width:340px; height:340px; pointer-events:none; opacity:.7; mix-blend-mode:screen}
 .warrior-aura svg{width:100%;height:100%; animation:auraflare 2.6s ease-in-out infinite}
 @keyframes auraflare{0%,100%{transform:scale(1); opacity:.7}50%{transform:scale(1.12); opacity:.9}}
-.spark{position:fixed; width:4px; height:4px; border-radius:50%; background:#FF6B3D; box-shadow:0 0 10px #C41E1E, 0 0 22px #6B0A0A; z-index:0; pointer-events:none; animation: rise 8s linear infinite; opacity:.8}
-.ember{position:fixed; width:2px; height:2px; border-radius:50%; background:#D94A3D; box-shadow:0 0 6px #C41E1E; z-index:0; pointer-events:none; animation: drift 12s linear infinite; opacity:.6}
+.spark{position:absolute; width:4px; height:4px; border-radius:50%; background:#FF6B3D; box-shadow:0 0 10px #C41E1E, 0 0 22px #6B0A0A; pointer-events:none; animation: rise 8s linear infinite; opacity:.8}
+.ember{position:absolute; width:2px; height:2px; border-radius:50%; background:#D94A3D; box-shadow:0 0 6px #C41E1E; pointer-events:none; animation: drift 12s linear infinite; opacity:.6}
 @keyframes drift{0%{transform:translate(0,0) scale(1); opacity:0}15%{opacity:.7}85%{opacity:.4}100%{transform:translate(40px,-90vh) scale(.3); opacity:0}}
 @keyframes rise{0%{transform:translateY(0) scale(1); opacity:0}10%{opacity:.9}90%{opacity:.9}100%{transform:translateY(-80vh) scale(.3); opacity:0}}
-.grain{position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.28; mix-blend-mode:overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.13 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.grain{position:absolute; inset:0; pointer-events:none; opacity:.28; mix-blend-mode:overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.13 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
 [data-theme="light"] .power-bg{
   background:
     radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,45,45,0.10), transparent 60%),
@@ -580,6 +588,7 @@ h3{font-family:var(--font-display);font-size:18px;font-weight:600;text-transform
 </style>
 </head>
 <body>
+<div class="bg-stage" aria-hidden="true">
 <div class="power-bg"></div>
 <div class="speed-lines"></div>
 <svg class="mountains" viewBox="0 0 390 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -728,6 +737,7 @@ h3{font-family:var(--font-display);font-size:18px;font-weight:600;text-transform
 <div class="ember" style="left:38%;bottom:35%;animation-delay:6s"></div>
 <div class="ember" style="left:68%;bottom:40%;animation-delay:9s"></div>
 <div class="grain"></div>
+</div>
 <div id="app">
   <div style="padding:40px 20px;text-align:center;color:#F5F0EA;font-family:'Oswald',Impact,sans-serif;position:relative;z-index:2">
     <div style="font-size:72px;font-weight:700;letter-spacing:-2px;animation:preboot 1.2s infinite">REPS</div>
