@@ -1180,6 +1180,19 @@ function App() {
     if (error) alert("Sign-in failed: " + error.message);
   };
 
+  // Email/password sign-in — works inside the installed PWA where OAuth
+  // redirects can't return. To share the wallet with SpendLens, you must
+  // sign in here with the SAME email/password that account uses on
+  // SpendLens (set one there via "Set REPS password" in SpendLens Settings).
+  const signInEmail = async (email, password) => {
+    const client = getSB();
+    if (!client) { alert("Auth client failed to load. Check your connection."); return { ok: false }; }
+    const { data, error } = await client.auth.signInWithPassword({ email: email.trim(), password });
+    if (error) { alert("Sign-in failed: " + error.message); return { ok: false }; }
+    setAuthUser(data.user || null);
+    return { ok: true };
+  };
+
   const signOut = async () => {
     const client = getSB();
     if (!client) return;
@@ -1416,7 +1429,7 @@ function App() {
     page === "photos" && h(PhotosPage, null),
     page === "stats" && h(StatsPage, { bodyStats, setBodyStats, cardioLogs, setCardioLogs, setModal, ctx, depositReward }),
     page === "wallet" && h(WalletPage, { walletBalance, walletTxns, walletSyncing, authUser, signInGoogle, signOut, setModal }),
-    page === "settings" && h(SettingsPage, { profile, setProfile, darkMode, setDarkMode, onReset: handleReset, workouts, schedule, setSchedule, setModal, authUser, signInGoogle, signOut, rewardConfig, setRewardConfig }),
+    page === "settings" && h(SettingsPage, { profile, setProfile, darkMode, setDarkMode, onReset: handleReset, workouts, schedule, setSchedule, setModal, authUser, signInGoogle, signInEmail, signOut, rewardConfig, setRewardConfig }),
     modal && h("div", { className: "modal-overlay", onClick: () => setModal(null) },
       h("div", { className: "modal modal-tall", onClick: e => e.stopPropagation() },
         h("div", { className: "modal-handle" }), modal)),
@@ -2408,10 +2421,20 @@ function CardioModal({ onSave }) {
 // ═════════════════════════════════════════════════════════════════
 // Settings
 // ═════════════════════════════════════════════════════════════════
-function SettingsPage({ profile, setProfile, darkMode, setDarkMode, onReset, workouts, schedule, setSchedule, setModal, authUser, signInGoogle, signOut, rewardConfig, setRewardConfig }) {
+function SettingsPage({ profile, setProfile, darkMode, setDarkMode, onReset, workouts, schedule, setSchedule, setModal, authUser, signInGoogle, signInEmail, signOut, rewardConfig, setRewardConfig }) {
   const openScheduleEditor = () => setModal(h(ScheduleEditorModal, { workouts, schedule, onSave: (s) => { setSchedule(s); setModal(null); } }));
   const cfg = rewardConfig || DEFAULT_REWARDS;
   const setCfg = (patch) => setRewardConfig({ ...cfg, ...patch });
+  const [emailVal, setEmailVal] = useState("");
+  const [pwVal, setPwVal] = useState("");
+  const [busy, setBusy] = useState(false);
+  const doSignInEmail = async () => {
+    if (!emailVal.trim() || !pwVal) return;
+    setBusy(true);
+    const r = await signInEmail(emailVal, pwVal);
+    setBusy(false);
+    if (r.ok) { setPwVal(""); }
+  };
   const exportData = () => {
     const payload = {
       version: SCHEMA_VERSION, exportedAt: new Date().toISOString(),
@@ -2436,8 +2459,18 @@ function SettingsPage({ profile, setProfile, darkMode, setDarkMode, onReset, wor
         h("p", { className: "text-xs text-muted mb-3" }, "Your reward wallet syncs with SpendLens automatically."),
         h("button", { className: "btn btn-secondary btn-sm", onClick: signOut }, "Sign out"))
       : h("div", null,
-        h("p", { className: "text-sm text-muted mb-3" }, "Sign in with Google to share your guilt-free wallet with SpendLens. Your rewards become spendable money in SpendLens, no guilt attached."),
-        h("button", { className: "btn btn-primary btn-full", onClick: signInGoogle }, h(Icon, { name: "arrow", size: 14, color: "#fff" }), " Sign in with Google"))),
+        h("p", { className: "text-sm text-muted mb-3" }, "Sign in to share your guilt-free wallet with SpendLens. Your rewards become spendable money in SpendLens, no guilt attached."),
+        h("p", { className: "label" }, "Email"),
+        h("input", { className: "input mb-2", type: "email", autoComplete: "email", placeholder: "you@example.com", value: emailVal, onChange: e => setEmailVal(e.target.value), disabled: busy }),
+        h("p", { className: "label" }, "Password"),
+        h("input", { className: "input mb-3", type: "password", autoComplete: "current-password", placeholder: "•••••••", value: pwVal, onChange: e => setPwVal(e.target.value), disabled: busy, onKeyDown: e => { if (e.key === "Enter") doSignInEmail(); } }),
+        h("button", { className: "btn btn-primary btn-full mb-2", disabled: busy || !emailVal.trim() || !pwVal, onClick: doSignInEmail },
+          busy ? "Signing in…" : "Sign in with email"),
+        h("p", { style: { fontSize: 11, color: "var(--text3)", lineHeight: 1.5, marginTop: 12 } },
+          "First time? Open SpendLens, go to Settings → Gmail Sync, sign in with Google, then tap “Set REPS password” to give your account a password. Then come back here and sign in with the same email + that password."),
+        h("div", { className: "divider-soft mt-3 mb-3" }),
+        h("p", { style: { fontSize: 11, color: "var(--text3)", marginBottom: 8 } }, "Or, in a regular browser (not the installed app):"),
+        h("button", { className: "btn btn-secondary btn-full btn-sm", onClick: signInGoogle }, "Sign in with Google"))),
 
     h("div", { className: "card card-iron" },
       h("h3", { className: "mb-3" }, "About you"),
@@ -2555,13 +2588,13 @@ function WalletPage({ walletBalance, walletTxns, walletSyncing, authUser, signIn
       h("p", { className: "wallet-balance mt-1" }, "$", walletBalance.toFixed(2)),
       h("p", { className: "text-sm text-muted mt-2", style: { lineHeight: 1.5 } }, "Earned by showing up. Spend it on something nice — no guilt attached."),
       h("div", { className: "flex gap-2 mt-3" },
-        h("button", { className: "btn btn-primary btn-full", disabled: walletBalance <= 0, onClick: () => setModal(h(SpendWalletModal, { balance: walletBalance, authUser, signInGoogle, onConfirm: (amount, description) => { setModal(null); } })) },
+        h("button", { className: "btn btn-primary btn-full", disabled: walletBalance <= 0, onClick: () => setModal(h(SpendWalletModal, { balance: walletBalance, authUser, onConfirm: (amount, description) => { setModal(null); } })) },
           h(Icon, { name: "heart", size: 14, color: "#fff" }), " Spend"),
         h("button", { className: "btn btn-secondary", onClick: () => setModal(h(WalletInfoModal, null)) }, h(Icon, { name: "book", size: 14 })))),
 
     !authUser && h("div", { className: "auth-card mb-3" },
       h("p", { className: "text-sm", style: { lineHeight: 1.5, marginBottom: 10 } }, "Sign in to share this wallet with SpendLens, so you can actually spend it from your main money app."),
-      h("button", { className: "btn btn-primary btn-sm", onClick: signInGoogle }, "Connect with SpendLens")),
+      h("p", { style: { fontSize: 11, color: "var(--text3)", marginBottom: 10 } }, "Go to Settings → Connect with SpendLens to sign in.")),
 
     h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }, className: "mb-3" },
       h("div", { className: "stat-card" },
@@ -2596,7 +2629,7 @@ function WalletInfoModal() {
     h("p", { className: "text-sm", style: { lineHeight: 1.6, color: "var(--text2)" } }, "Tune the amounts in Settings if you want larger or smaller rewards."));
 }
 
-function SpendWalletModal({ balance, authUser, signInGoogle, onConfirm }) {
+function SpendWalletModal({ balance, authUser, onConfirm }) {
   return h("div", null,
     h(Kicker, null, "Spend"),
     h("h2", { className: "mb-2", style: { fontStyle: "italic" } }, "Treat yourself"),
@@ -2605,8 +2638,7 @@ function SpendWalletModal({ balance, authUser, signInGoogle, onConfirm }) {
       h("p", { className: "text-sm mb-3", style: { lineHeight: 1.5 } }, "Open SpendLens to spend from this wallet. The balance is already mirrored there under your guilt-free fund."),
       h("a", { className: "btn btn-primary btn-full", href: "https://aspurand.github.io/Spendlens/", target: "_blank", rel: "noopener" }, "Open SpendLens"))
     : h("div", null,
-      h("p", { className: "text-sm mb-3" }, "Sign in to share this wallet with SpendLens, so you can spend it from your main money app."),
-      h("button", { className: "btn btn-primary btn-full", onClick: signInGoogle }, "Connect with SpendLens")));
+      h("p", { className: "text-sm mb-3" }, "Sign in to share this wallet with SpendLens — go to Settings → Connect with SpendLens.")));
 }
 
 function RewardSummaryModal({ earned, total, onClose }) {

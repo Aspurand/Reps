@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reps-v3.1-sunrise';
+const CACHE_NAME = 'reps-v3.2-emailauth';
 const ASSETS = [
   './',
   './index.html',
