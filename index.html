@@ -10,7 +10,10 @@
 <meta name="description" content="REPS — A calm practice for body and mind."/>
 <title>REPS</title>
 <link rel="manifest" href="manifest.json"/>
+<link rel="icon" type="image/svg+xml" href="icon.svg"/>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="mask-icon" href="icon.svg" color="#E89B5F"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
@@ -537,7 +540,8 @@ h3{font-family:var(--font);font-size:16px;font-weight:600;letter-spacing:.1px}
 .divider-label span{font-family:var(--font);font-size:11px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;font-weight:500}
 
 .wordmark{font-family:var(--font-display);font-weight:500;font-size:56px;letter-spacing:-2px;line-height:1;color:var(--text);position:relative;display:inline-block;font-style:italic}
-.wordmark::after{content:".";color:var(--accent);font-style:normal}
+.wordmark::after{content:".";color:#E89B5F;font-style:normal}
+.brand-mark{display:inline-block;border-radius:18px;box-shadow:0 6px 22px rgba(45,41,32,0.10);vertical-align:middle}
 
 .big-reps{font-family:var(--font-display);font-size:48px;font-weight:500;letter-spacing:-1.5px;line-height:1;font-variant-numeric:tabular-nums}
 
@@ -639,9 +643,10 @@ h3{font-family:var(--font);font-size:16px;font-weight:600;letter-spacing:.1px}
   <div class="grain"></div>
 </div>
 <div id="app">
-  <div style="padding:60px 20px;text-align:center;color:#2D2920;font-family:'Fraunces',Georgia,serif;position:relative;z-index:2">
-    <div style="font-size:56px;font-weight:500;letter-spacing:-2px;font-style:italic;animation:preboot 2s ease-in-out infinite">reps<span style="color:#7FA9C9;font-style:normal">.</span></div>
-    <div style="font-family:'Inter',system-ui,sans-serif;font-size:12px;color:#A39A89;margin-top:14px">Setting your space…</div>
+  <div style="padding:80px 20px 40px;text-align:center;color:#2D2920;font-family:'Fraunces',Georgia,serif;position:relative;z-index:2">
+    <img src="icon.svg" alt="" width="84" height="84" style="display:block;margin:0 auto 18px;border-radius:18px;box-shadow:0 6px 22px rgba(45,41,32,0.10);animation:preboot 2.4s ease-in-out infinite"/>
+    <div style="font-size:48px;font-weight:500;letter-spacing:-1.5px;font-style:italic">reps<span style="color:#E89B5F;font-style:normal">.</span></div>
+    <div style="font-family:'Inter',system-ui,sans-serif;font-size:12px;color:#A39A89;margin-top:10px">Setting your space…</div>
     <noscript>
       <div style="margin-top:40px;padding:20px;background:#F8F3E7;border:1px solid #E4DCC8;border-radius:14px;font:14px/1.5 system-ui,sans-serif;color:#2D2920">
         REPS needs JavaScript to run. Please enable it and refresh.
@@ -1335,8 +1340,9 @@ function App() {
   };
 
   if (!catalogReady) return h("div", { className: "page flex flex-col items-center justify-center", style: { minHeight: "100dvh" } },
-    h("div", { className: "wordmark loading-pulse" }, "reps"),
-    h("p", { className: "loading-pulse", style: { color: "var(--text3)", marginTop: 12, fontSize: 13 } }, "Setting your space…")
+    h("img", { src: "icon.svg", alt: "", width: 84, height: 84, className: "brand-mark loading-pulse", style: { marginBottom: 18 } }),
+    h("div", { className: "wordmark", style: { fontSize: 48 } }, "reps"),
+    h("p", { style: { color: "var(--text3)", marginTop: 10, fontSize: 13 } }, "Setting your space…")
   );
 
   if (!onboarded) return h(Onboarding, { profile, setProfile, onComplete: () => setOnboarded(true) });
@@ -1380,8 +1386,9 @@ function Onboarding({ profile, setProfile, onComplete }) {
     h("div", { style: { animation: "fadeUp .5s cubic-bezier(.2,.8,.2,1)" } }, children));
 
   if (step === 0) return frame([
+    h("img", { key: "m", src: "icon.svg", alt: "", width: 96, height: 96, className: "brand-mark", style: { marginBottom: 18, display: "block" } }),
     h("p", { key: "k", className: "kicker" }, "Welcome"),
-    h("div", { key: "w", className: "wordmark", style: { fontSize: 80, marginBottom: 8 } }, "reps"),
+    h("div", { key: "w", className: "wordmark", style: { fontSize: 72, marginBottom: 8 } }, "reps"),
     h("p", { key: "t", style: { fontFamily: "var(--font-display)", fontSize: 22, fontStyle: "italic", letterSpacing: 0, lineHeight: 1.3, marginBottom: 12, color: "var(--text)" } }, "A calm practice for body and mind."),
     h("p", { key: "d", className: "text-muted", style: { fontSize: 15, lineHeight: 1.65, marginBottom: 28 } }, "Show up at your own pace. Track your sessions, watch your strength grow, and earn a little reward to spend on something nice when you do."),
     h("div", { key: "h", className: "divider-soft mb-3" }),
