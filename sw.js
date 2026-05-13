@@ -1,13 +1,14 @@
-const CACHE_NAME = 'reps-v2';
+const CACHE_NAME = 'reps-v3-calm';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './exercises.json',
-  'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap',
+  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap',
   'https://unpkg.com/react@18/umd/react.production.min.js',
   'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
-  'https://unpkg.com/@babel/standalone/babel.min.js'
+  'https://unpkg.com/@babel/standalone/babel.min.js',
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
 ];
 
 self.addEventListener('install', event => {

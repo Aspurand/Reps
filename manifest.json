@@ -1,11 +1,11 @@
 {
-  "name": "REPS - Fitness Tracker",
+  "name": "REPS — A calm practice",
   "short_name": "REPS",
-  "description": "Your personal fitness companion. Simple, focused, built for consistency.",
+  "description": "A calm practice for body and mind. Show up at your own pace.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0F0F13",
-  "theme_color": "#0F0F13",
+  "background_color": "#F4EFE3",
+  "theme_color": "#F4EFE3",
   "orientation": "portrait",
   "icons": [
     {
