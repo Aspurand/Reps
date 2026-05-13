@@ -623,6 +623,55 @@ h3{font-family:var(--font);font-size:16px;font-weight:600;letter-spacing:.1px}
   padding:18px;
   text-align:center;
 }
+
+/* Element tag — shows which Avatar element is active on this page */
+.element-tag{
+  position:fixed; top:max(14px, env(safe-area-inset-top));
+  right:18px; z-index:50;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:5px 11px;
+  border-radius:999px;
+  background:var(--accent-soft);
+  border:1px solid var(--accent-soft);
+  color:var(--accent-deep);
+  font-family:var(--font);
+  font-size:10px; font-weight:600; letter-spacing:.6px;
+  text-transform:uppercase;
+  pointer-events:none;
+  transition:background .4s ease, color .4s ease, border-color .4s ease;
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+}
+.element-tag .dot{
+  width:6px; height:6px; border-radius:50%;
+  background:var(--accent);
+}
+
+/* Tint horizon SVG per theme so the scenery actually shifts as you navigate */
+.horizon path { fill: var(--accent); transition: fill .4s ease; }
+.horizon path:nth-child(1) { opacity: .10 }
+.horizon path:nth-child(2) { opacity: .07 }
+.horizon path:nth-child(3) { opacity: .05 }
+/* Bg-stage gradient picks up theme accent at top — more obvious sky tint */
+.bg-stage{
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 0%, var(--accent-soft), transparent 75%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%) !important;
+}
+
+/* On the Fire (Iroh tea-house) page, add a soft hearth glow at the bottom */
+[data-theme="fire"] .bg-stage::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:40vh;
+  background:radial-gradient(ellipse 70% 60% at 50% 100%, rgba(176,70,58,0.10), transparent 70%);
+  pointer-events:none;
+}
+/* Spirit gets a subtle moon */
+[data-theme="spirit"] .bg-stage::before{
+  content:""; position:absolute; top:8%; right:15%;
+  width:60px; height:60px; border-radius:50%;
+  background:radial-gradient(circle, rgba(232,220,232,0.7), rgba(232,220,232,0) 70%);
+  box-shadow:0 0 40px rgba(232,220,232,0.5);
+  pointer-events:none;
+}
 </style>
 </head>
 <body>
@@ -636,9 +685,9 @@ h3{font-family:var(--font);font-size:16px;font-weight:600;letter-spacing:.1px}
   <div class="petal p3"></div>
   <div class="petal p4"></div>
   <svg class="horizon" viewBox="0 0 390 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0,140 C60,120 120,135 200,120 C260,108 320,118 390,108 L390,220 L0,220 Z" fill="currentColor" opacity="0.10"/>
-    <path d="M0,170 C70,158 130,168 200,155 C260,144 320,160 390,148 L390,220 L0,220 Z" fill="currentColor" opacity="0.07"/>
-    <path d="M0,200 C80,196 160,202 240,196 C310,190 360,200 390,196 L390,220 L0,220 Z" fill="currentColor" opacity="0.05"/>
+    <path d="M0,140 C60,120 120,135 200,120 C260,108 320,118 390,108 L390,220 L0,220 Z"/>
+    <path d="M0,170 C70,158 130,168 200,155 C260,144 320,160 390,148 L390,220 L0,220 Z"/>
+    <path d="M0,200 C80,196 160,202 240,196 C310,190 360,200 390,196 L390,220 L0,220 Z"/>
   </svg>
   <div class="grain"></div>
 </div>
@@ -831,6 +880,17 @@ const DEFAULT_REWARDS = {
   pr: 3,               // per new PR detected
   cardio: 2,           // per cardio session logged
 };
+
+// Avatar element themes — each page swaps the data-theme on body so the
+// accent, scenery, and status bar all shift. Fire and Spirit live on
+// main-nav pages so the user actually sees them.
+const THEME_BY_PAGE = {
+  home: "air", workouts: "earth", "active-workout": "fire",
+  progress: "water", stats: "water", photos: "spirit",
+  wallet: "fire", settings: "spirit",
+};
+const ELEMENT_NAMES = { air: "Air", earth: "Earth", fire: "Fire", water: "Water", spirit: "Spirit" };
+const THEME_BAR_COLORS = { air: "#F4EFE3", earth: "#EFE7D6", fire: "#F5EDDD", water: "#EEF4F6", spirit: "#EBE7E8" };
 
 const QUOTES = [
   { t: "When we hit our lowest point, we are open to the greatest change.", a: "Aang" },
@@ -1077,15 +1137,12 @@ function App() {
 
   // Per-page Avatar theme. Each page sets its element on the document root.
   useEffect(() => {
-    const themeByPage = { home: "air", workouts: "earth", "active-workout": "fire", progress: "water", stats: "water", photos: "spirit", wallet: "earth", settings: "air" };
-    const el = document.body;
-    el.setAttribute("data-theme", themeByPage[page] || "air");
-    el.setAttribute("data-theme-mode", darkMode ? "dark" : "light");
-    document.querySelector("#app").setAttribute("data-theme", themeByPage[page] || "air");
-    // Match the iOS status bar to the page accent
+    const theme = THEME_BY_PAGE[page] || "air";
+    document.body.setAttribute("data-theme", theme);
+    document.body.setAttribute("data-theme-mode", darkMode ? "dark" : "light");
+    document.querySelector("#app").setAttribute("data-theme", theme);
     const meta = document.querySelector('meta[name="theme-color"]');
-    const colors = { air: "#F4EFE3", earth: "#EFE7D6", fire: "#F5EDDD", water: "#EEF4F6", spirit: "#EBE7E8" };
-    if (meta) meta.setAttribute("content", colors[themeByPage[page]] || "#F4EFE3");
+    if (meta) meta.setAttribute("content", THEME_BAR_COLORS[theme] || "#F4EFE3");
   }, [page, darkMode]);
 
   // Auth — hydrate user on mount and listen for changes
@@ -1350,6 +1407,8 @@ function App() {
   const ctx = { catalog, catalogById, resolveItem, sessions, prs, findLastSetsFor };
 
   return h("div", null,
+    page !== "active-workout" && h("div", { className: "element-tag" },
+      h("span", { className: "dot" }), ELEMENT_NAMES[THEME_BY_PAGE[page]] || "Air"),
     page === "home" && h(HomePage, { profile, todayLabel: getTodayLabel(), todayWorkout: getTodayWorkout(), weeklyCompleted: getWeeklyCompleted(), streak: getStreak(), totalReps: getTotalReps(), calories: getCaloriesThisWeek(), bodyStats, sessions, schedule, workouts, startWorkout, setModal, setPage, walletBalance }),
     page === "workouts" && h(WorkoutsPage, { workouts, setWorkouts, schedule, setSchedule, startWorkout, setModal, ctx }),
     page === "active-workout" && activeWorkout && h(ActiveWorkoutPage, { session: activeWorkout, setSession: setActiveWorkout, completeWorkout, setPage, setModal, ctx }),
