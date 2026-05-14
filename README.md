@@ -2,6 +2,10 @@
 
 Your personal fitness companion. Simple, focused, built for consistency.
 
+## Anchor Prototype
+
+The Anchor mental health stability prototype lives in [`anchor/`](./anchor/).
+
 ## Deploy to GitHub Pages (Free Hosting)
 
 ### Step 1: Create a GitHub Repository
